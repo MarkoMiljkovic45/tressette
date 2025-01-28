@@ -107,10 +107,12 @@ public class TressetteGame {
             }
 
             if (m >= beta && successor.isMinimizer()) {
+                state.getSuccessors().clear();
                 return beta;
             }
         }
 
+        state.getSuccessors().clear();
         return m;
     }
 
@@ -131,10 +133,12 @@ public class TressetteGame {
             }
 
             if (m <= alpha && successor.isMaximizer()) {
+                state.getSuccessors().clear();
                 return alpha;
             }
         }
 
+        state.getSuccessors().clear();
         return m;
     }
 }

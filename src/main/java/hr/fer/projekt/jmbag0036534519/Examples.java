@@ -11,13 +11,13 @@ public class Examples {
 
     public static void main(String[] args) {
         System.gc();
-        //basicExample(Util::readMinimaxPath);
-        basicExample(Util::getMinmaxPots);
+        //basicExample(Util::getMinmaxPots, 40);
+        //deepExample(Util::getMinmaxPots, 28);
         //memoryExample(Util::getMinmaxPots);
-        //greedyExample(Util::getMinmaxPots);
+        greedyExample(Util::getMinmaxPots, 20);
     }
 
-    public static void basicExample(Function<State, String> statePrinter) {
+    public static void basicExample(Function<State, String> statePrinter, int maxDepth) {
         Runtime runtime = Runtime.getRuntime();
         List<Card> deck = generateRandomDeck();
         List<List<Card>> hands = dealCards(deck);
@@ -25,7 +25,7 @@ public class Examples {
 
         State root = eval(hands, 0);
         System.out.println("Searching for optimal continuation...");
-        for (int depth = 4; depth <= 16; depth += 4) {
+        for (int depth = 4; depth <= maxDepth; depth += 4) {
             eval(root, depth);
             System.out.println("memory: " + readMemoryUsage(runtime));
             System.out.println("depth: " + depth);
@@ -33,6 +33,21 @@ public class Examples {
             System.out.println(statePrinter.apply(root));
             System.out.println();
         }
+    }
+
+    public static void deepExample(Function<State, String> statePrinter, int maxDepth) {
+        Runtime runtime = Runtime.getRuntime();
+        List<Card> deck = generateRandomDeck();
+        List<List<Card>> hands = dealCards(deck);
+        printHands(hands);
+
+        State root = eval(hands, 0);
+        System.out.println("Searching for optimal continuation...");
+        eval(root, maxDepth);
+        System.out.println("memory: " + readMemoryUsage(runtime));
+        System.out.println("depth: " + maxDepth);
+        System.out.println("minimax: " + getMinimaxScore(root));
+        System.out.println(statePrinter.apply(root));
     }
 
     public static void memoryExample(Function<State, String> statePrinter) {
@@ -61,7 +76,7 @@ public class Examples {
         }
     }
 
-    public static void greedyExample(Function<State, String> statePrinter) {
+    public static void greedyExample(Function<State, String> statePrinter, int jump) {
         Runtime runtime = Runtime.getRuntime();
         List<Card> deck = generateRandomDeck();
         List<List<Card>> hands = dealCards(deck);
@@ -70,11 +85,17 @@ public class Examples {
         State root = eval(hands, 0);
         State currRoot = root;
         System.out.println("Searching for continuation... (Greedy)");
-        for (int i = 1; i <= 4; i++) {
-            eval(currRoot, i * 12);
+
+        int maxJumps = (40 % jump == 0)
+                ? 40 / jump
+                : 40 / jump + 1;
+
+        for (int i = 1; i <= maxJumps; i++) {
+            int depth = i * jump;
+            eval(currRoot, depth);
 
             System.out.println("memory: " + readMemoryUsage(runtime));
-            System.out.println("depth: " + Integer.min(i * 12, 40));
+            System.out.println("depth: " + depth);
             System.out.println("minimax: " + getMinimaxScore(root));
             System.out.println(statePrinter.apply(root));
             System.out.println();

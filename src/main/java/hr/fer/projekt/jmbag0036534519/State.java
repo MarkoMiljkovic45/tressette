@@ -61,7 +61,7 @@ public class State {
     }
 
     public List<State> getSuccessors() {
-        if (successors == null) {
+        if (successors == null || successors.isEmpty()) {
             calculateSuccessors();
         }
         return successors;
