@@ -8,12 +8,13 @@ import static hr.fer.projekt.jmbag0036534519.Util.getMinimaxScore;
 import static hr.fer.projekt.jmbag0036534519.Util.readMemoryUsage;
 
 public class Examples {
-    private static final long MIN_FREE_MEMORY = 300 * 1024 * 1024;
 
     public static void main(String[] args) {
+        System.gc();
         //basicExample(Util::readMinimaxPath);
-        //basicExample(Util::getMinmaxPots);
-        greedyExample(Util::getMinmaxPots);
+        basicExample(Util::getMinmaxPots);
+        //memoryExample(Util::getMinmaxPots);
+        //greedyExample(Util::getMinmaxPots);
     }
 
     public static void basicExample(Function<State, String> statePrinter) {
@@ -24,8 +25,26 @@ public class Examples {
 
         State root = eval(hands, 0);
         System.out.println("Searching for optimal continuation...");
-        for (int depth = 4; depth <= 16; depth += 1) {
-            if (runtime.maxMemory() < MIN_FREE_MEMORY) {
+        for (int depth = 4; depth <= 16; depth += 4) {
+            eval(root, depth);
+            System.out.println("memory: " + readMemoryUsage(runtime));
+            System.out.println("depth: " + depth);
+            System.out.println("minimax: " + getMinimaxScore(root));
+            System.out.println(statePrinter.apply(root));
+            System.out.println();
+        }
+    }
+
+    public static void memoryExample(Function<State, String> statePrinter) {
+        Runtime runtime = Runtime.getRuntime();
+        List<Card> deck = generateRandomDeck();
+        List<List<Card>> hands = dealCards(deck);
+        printHands(hands);
+
+        State root = eval(hands, 0);
+        System.out.println("Searching for optimal continuation...");
+        for (int depth = 4; depth <= 40; depth += 1) {
+            if (runtime.maxMemory() < runtime.totalMemory()) {
                 System.out.println("Low memory, aborting...");
                 System.out.println("max depth reached: " + depth);
                 return;

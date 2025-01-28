@@ -78,8 +78,7 @@ public class TressetteGame {
     }
 
     public static State eval(State root, int maxDepth) {
-        //maxValue(root, MIN_SCORE, MAX_SCORE, maxDepth);
-        minimax(root, MIN_SCORE, MAX_SCORE, maxDepth);
+        maxValue(root, MIN_SCORE, MAX_SCORE, maxDepth);
         return root;
     }
 
@@ -91,55 +90,27 @@ public class TressetteGame {
         return eval(hands, new ArrayList<>(4), maxDepth);
     }
 
-    private static int minimax(State state, int alpha, int beta, int maxDepth) {
-        if (state.isTerminal(maxDepth)) {
-            return state.getScore();
-        }
-        if (state.isMaximizer()) {
-            int m = alpha;
-            for (State successor: state.getSuccessors()) {
-                int max = minimax(successor, m, beta, maxDepth);
-                if (max > m) {
-                    m = max;
-                    state.setMinimaxSuccessor(successor);
-                }
-                if (m >= beta) {
-                    return beta;
-                }
-            }
-            return m;
-        } else {
-            int m = beta;
-            for (State successor: state.getSuccessors()) {
-                int min = minimax(successor, alpha, m, maxDepth);
-                if (min < m) {
-                    m = min;
-                    state.setMinimaxSuccessor(successor);
-                }
-                if (m <= alpha) {
-                    return alpha;
-                }
-            }
-            return m;
-        }
-    }
-
-    /*
     private static int maxValue(State state, int alpha, int beta, int maxDepth) {
         if (state.isTerminal(maxDepth)) {
             return state.getScore();
         }
+
         int m = alpha;
         for (State successor: state.getSuccessors()) {
-            int min = minValue(successor, m, beta, maxDepth);
-            if (min > m) {
-                m = min;
+            int successorValue = (successor.isMinimizer())
+                ? minValue(successor, m, beta, maxDepth)
+                : maxValue(successor, m, beta, maxDepth);
+
+            if (successorValue > m) {
+                m = successorValue;
                 state.setMinimaxSuccessor(successor);
             }
-            if (m >= beta) {
+
+            if (m >= beta && successor.isMinimizer()) {
                 return beta;
             }
         }
+
         return m;
     }
 
@@ -147,19 +118,23 @@ public class TressetteGame {
         if (state.isTerminal(maxDepth)) {
             return state.getScore();
         }
+
         int m = beta;
         for (State successor: state.getSuccessors()) {
-            int max = maxValue(successor, alpha, m, maxDepth);
-            if (max < m) {
-                m = max;
+            int successorValue = (successor.isMaximizer())
+                    ? maxValue(successor, alpha, m, maxDepth)
+                    : minValue(successor, alpha, m, maxDepth);
+
+            if (successorValue < m) {
+                m = successorValue;
                 state.setMinimaxSuccessor(successor);
             }
-            if (m <= alpha) {
+
+            if (m <= alpha && successor.isMaximizer()) {
                 return alpha;
             }
         }
+
         return m;
     }
-
-     */
 }

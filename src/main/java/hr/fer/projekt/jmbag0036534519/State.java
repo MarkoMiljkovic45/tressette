@@ -44,6 +44,10 @@ public class State {
         return isMaximizer;
     }
 
+    public boolean isMinimizer() {
+        return !isMaximizer;
+    }
+
     public void setMaximizer(boolean maximizer) {
         isMaximizer = maximizer;
     }
@@ -80,7 +84,7 @@ public class State {
 
             if (currPlayer == LAST_PLAYER) {
                 int potTakerIndex = getPotTakerIndex(newPot);
-                int potVal = pot.stream().mapToInt(Card::getValue).sum();
+                int potVal = newPot.stream().mapToInt(Card::getValue).sum();
 
                 isNextMaximizer = (potTakerIndex % 2 == 0) != isMaximizer;
                 newScore += isNextMaximizer ? potVal : -potVal;
@@ -97,7 +101,7 @@ public class State {
         }
     }
 
-    private static int getPotTakerIndex(List<Card> pot) {
+    public static int getPotTakerIndex(List<Card> pot) {
         int potSize = pot.size();
 
         if (potSize == 0) {
